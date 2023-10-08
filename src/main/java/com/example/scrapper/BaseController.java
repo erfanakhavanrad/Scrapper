@@ -23,4 +23,11 @@ public class BaseController {
         return ResponseEntity.ok().body(crawl);
     }
 
+    @GetMapping("/hard")
+    private ResponseEntity<LinkInfo> hardCoded() {
+        LinkInfo linkInfo = baseScrapper.hardCoded();
+        return ResponseEntity.ok().body(linkInfo);
+    }
+
+
 }

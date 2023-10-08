@@ -4,6 +4,7 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -19,17 +20,17 @@ public class BaseScrapper {
 
     public LinkInfo crawl(int level, String url, ArrayList<String> visitedUrls) {
         if (level <= 10) {
-        Document document = request(url, visitedUrls);
+            Document document = request(url, visitedUrls);
 
-        if (document != null) {
-            for (Element link : document.select("a[href]")) {
+            if (document != null) {
+                for (Element link : document.select("a[href]")) {
 
-                String hrefValue = link.absUrl("href");
-                if (!visitedUrls.contains(hrefValue)) {
-                    crawl(++level, hrefValue, visitedUrls);
+                    String hrefValue = link.absUrl("href");
+                    if (!visitedUrls.contains(hrefValue)) {
+                        crawl(++level, hrefValue, visitedUrls);
+                    }
                 }
             }
-        }
         }
         linkInfo.setLinks(fetchedLinks);
         linkInfo.setTitles(fetchedTitles);
@@ -60,5 +61,34 @@ public class BaseScrapper {
         }
         return null;
     }
+
+
+    public LinkInfo hardCoded() {
+        try {
+//            String url = "https://simplesolution.dev";
+            String url = "http://188.165.227.112/portail/series/Game_of_thrones_S5/";
+            Document document = Jsoup.connect(url).get();
+
+            Elements allLinks = document.getElementsByTag("a");
+
+            for (Element link : allLinks) {
+                String relativeUrl = link.attr("href");
+                String absoluteUrl = link.attr("abs:href");
+
+                System.out.println("Relative URL: " + relativeUrl);
+                System.out.println("Absolute URL: " + absoluteUrl);
+                fetchedLinks.add(relativeUrl);
+                fetchedTitles.add(absoluteUrl);
+            }
+
+            linkInfo.setLinks(fetchedLinks);
+            linkInfo.setTitles(fetchedTitles);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return linkInfo;
+    }
+
 
 }
